@@ -57,16 +57,33 @@ async fn handle_client_message(
             println!("Move request from client {addr}");
             let player: Option<Player> = {
                 let mut players = PLAYERS.write().await;
+
                 let player = if let Some(player) = players.get_mut(&player) {
-                    player.position = [
-                        player.position[0] + direction[0] * player.speed,
-                        player.position[1] + direction[1] * player.speed,
-                        player.position[2] + direction[2] * player.speed,
-                    ];
+                    let new_x = player.position[0] + direction[0] * player.speed;
+                    let new_y = player.position[1] + direction[1] * player.speed;
+                    let current_z = player.position[2];
+
+                    let tx = new_x.floor() as i64;
+                    let ty = new_y.floor() as i64;
+                    let tz = current_z.floor() as i64;
+
+                    let should_jump = {
+                        let map = TILE_MANAGER.read().await;
+                        map.tiles.get(&(tx, ty, tz + 1)).is_some()
+                    };
+
+                    if should_jump {
+                        player.position[2] += 1.0;
+                    } else {
+                        player.position[0] = new_x;
+                        player.position[1] = new_y;
+                    }
+
                     Some(player.clone())
                 } else {
                     None
                 };
+
                 player
             };
 
