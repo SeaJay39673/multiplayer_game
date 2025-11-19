@@ -1,0 +1,16 @@
+[package]
+name = "client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.36", features = ["full"] }
+anyhow = "1.0"
+shared = { path = "../shared" }
+glam = "0.30.9"
+wgpu = "27.0.1"
+winit = "0.30.12"
+bytemuck = "1.24.0"
+image = "0.25.9"
+pollster = "0.4.0"
+watch = "0.2.3"
