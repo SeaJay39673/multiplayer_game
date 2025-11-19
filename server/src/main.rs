@@ -31,9 +31,21 @@ async fn handle_client_message(
         ClientMessage::ConnectionRequest => {
             let player = {
                 let mut players = PLAYERS.write().await;
+                let map = TILE_MANAGER.read().await;
+                let pos = if let Some(pos) = map
+                    .tiles
+                    .iter()
+                    .filter(|((x, y, z), tile)| *x == 0 && *y == 0)
+                    .map(|((x, y, z), tile)| [*x as f32, *y as f32, *z as f32])
+                    .next()
+                {
+                    pos
+                } else {
+                    [0.0, 0.0, 0.0]
+                };
                 let player = players.entry(id.clone()).or_insert(Player {
                     id: id.clone(),
-                    position: [0.0, 0.0, 0.0],
+                    position: pos,
                     speed: 0.025,
                 });
                 player.clone()
@@ -72,8 +84,15 @@ async fn handle_client_message(
                         map.tiles.get(&(tx, ty, tz + 1)).is_some()
                     };
 
+                    let should_fall = {
+                        let map = TILE_MANAGER.read().await;
+                        map.tiles.get(&(tx, ty, tz - 1)).is_some()
+                    };
+
                     if should_jump {
                         player.position[2] += 1.0;
+                    } else if should_fall {
+                        player.position[2] -= 1.0;
                     } else {
                         player.position[0] = new_x;
                         player.position[1] = new_y;
