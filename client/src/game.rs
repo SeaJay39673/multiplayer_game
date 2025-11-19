@@ -47,7 +47,7 @@ struct GameManager {
 
 impl GameManager {
     pub async fn new() -> Result<Self> {
-        let stream = TcpStream::connect("127.0.0.1:5250").await?;
+        let stream = TcpStream::connect("game-server.local:5250").await?;
         println!("Connected to server");
         let (mut reader, mut writer) = stream.into_split();
 

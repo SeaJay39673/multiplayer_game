@@ -159,7 +159,7 @@ async fn handle_connection(
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    let listener = TcpListener::bind("127.0.0.1:5250").await?;
+    let listener = TcpListener::bind("0.0.0.0:5250").await?;
 
     let (tx, _rx) = broadcast::channel::<ServerMessage>(100);
 
